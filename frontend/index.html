@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Event Management</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    h1 { color: #333; }
+    form, section { margin-bottom: 20px; }
+    input { margin: 5px 0; padding: 5px; }
+    button { margin: 5px 0; padding: 5px 10px; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 5px 0; padding: 5px; border-bottom: 1px solid #ccc; }
+    .notif { background: #f1f1f1; padding: 5px; margin: 5px 0; }
+  </style>
+</head>
+<body>
+  <h1>Event Management</h1>
+
+  <!-- Create Event -->
+  <section>
+    <h2>Create Event</h2>
+    <form id="eventForm">
+      <label>Title:<br><input type="text" id="title" required></label><br>
+      <label>Description:<br><input type="text" id="description" required></label><br>
+      <label>Date:<br><input type="date" id="date" required></label><br>
+      <button type="submit">Create</button>
+    </form>
+  </section>
+
+  <!-- List Events -->
+  <section>
+    <h2>All Events</h2>
+    <button onclick="loadEvents()">Refresh Events</button>
+    <ul id="eventList"></ul>
+  </section>
+
+  <script>
+    const API_BASE = "http://localhost:8080"; // Backend server
+
+    // ---------- Create Event ----------
+    document.getElementById("eventForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const title = document.getElementById("title").value;
+      const description = document.getElementById("description").value;
+
+      const res = await fetch(`${API_BASE}/events`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title, description })
+      });
+
+      if (res.ok) {
+        alert("Event created!");
+        document.getElementById("eventForm").reset();
+        loadEvents();
+      } else {
+        alert("Error creating event");
+      }
+    });
+
+    // ---------- Load All Events ----------
+    async function loadEvents() {
+      const res = await fetch(`${API_BASE}/events`);
+      console.log(res);
+      const events = await res.json();
+      const list = document.getElementById("eventList");
+      list.innerHTML = "";
+      events.forEach(ev => {
+        const li = document.createElement("li");
+        li.textContent = `${ev.event_date} ${ev.title} - ${ev.description}`;
+
+        // Delete button
+        const deleteButton = document.createElement("button");
+        deleteButton.textContent = "Delete";
+        deleteButton.onclick = () => deleteEvent(ev.id);
+
+        // Update button
+        const updateButton = document.createElement("button");
+        updateButton.textContent = "Update";
+        updateButton.onclick = () => {
+          const newTitle = prompt("Enter new title:", ev.title);
+          const newDesc = prompt("Enter new description:", ev.description);
+          const newDate = prompt("Enter new date (YYYY-MM-DD):", ev.date);
+          if (newTitle && newDesc) {
+            updateEvent(ev.id, { title: newTitle, description: newDesc , date: newDate});
+          }
+        };
+
+        li.appendChild(updateButton);
+        li.appendChild(deleteButton);
+
+        list.appendChild(li);
+      });
+    }
+
+    // ---------- Delete Event ----------
+    async function deleteEvent(id) {
+      if (!confirm("Are you sure you want to delete this event?")) return;
+      const res = await fetch(`${API_BASE}/events/${id}`, { method: "DELETE" });
+      if (res.ok) {
+        alert("Event deleted!");
+        loadEvents();
+      } else {
+        alert("Error deleting event.");
+      }
+    }
+
+    // ---------- Update Event ----------
+    async function updateEvent(id, data) {
+      const res = await fetch(`${API_BASE}/events/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      });
+
+      if (res.ok) {
+        alert("Event updated!");
+        loadEvents();
+      } else {
+        alert("Error updating event.");
+      }
+    }
+
+    // ---------- Init ----------
+    loadEvents();
+  </script>
+</body>
+</html>
