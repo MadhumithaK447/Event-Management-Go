@@ -1,10 +1,11 @@
 # Event-Management-Go
 
 ## Events Table
-<img width="824" height="168" alt="image" src="https://github.com/user-attachments/assets/f93527bf-2869-4408-98b6-76843fe6288d" />
+<img width="1035" height="221" alt="image" src="https://github.com/user-attachments/assets/8d8aebbb-c140-4d17-aacd-921d1e924882" />
 
 ## Attendees Table
-<img width="862" height="188" alt="image" src="https://github.com/user-attachments/assets/5075be51-dabe-4c21-be64-004ff5c14ce2" />
+<img width="1121" height="225" alt="image" src="https://github.com/user-attachments/assets/7fe52726-0655-447f-8a61-ddb7021d7ba1" />
 
 ## RSVP Table 
-<img width="710" height="183" alt="image" src="https://github.com/user-attachments/assets/dd5619a2-5563-49b2-b3d1-c58f8e2b4422" />
+<img width="916" height="241" alt="image" src="https://github.com/user-attachments/assets/7e6e121d-f1f8-4800-84dd-23bbd233dc4b" />
+
