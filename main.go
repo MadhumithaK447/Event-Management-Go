@@ -2,11 +2,13 @@ package main
 
 import (
 	"context"
+	"eventgoapp/cache"
 	"eventgoapp/db"
 	"eventgoapp/handler"
 	"eventgoapp/kk"
 	"eventgoapp/repository"
 	"eventgoapp/service"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -39,11 +41,16 @@ func main() {
 	eventService := service.NewEventService(eventRepo)
 	attendeeService := service.NewAttendeeService(attendeeRepo)
 	rsvpService := service.NewRsvpService(rsvpRepo, attendeeRepo, eventRepo)
+	notificationService := service.NewNotificationService(eventRepo, rsvpRepo, producer)
 
 	// ------------------ Handlers ------------------
 	eventHandler := handler.NewEventHandler(eventService, producer)
 	attendeeHandler := handler.NewAttendeeHandler(attendeeService)
 	rsvpHandler := handler.NewRsvpHandler(rsvpService)
+	notificationHandler := handler.NewNotificationHandler(notificationService, producer, consumer)
+
+	cache.InitRedis()
+	fmt.Println("Connected to Redis")
 
 	// ------------------ Gin Router ------------------
 	router := gin.Default()
@@ -67,6 +74,7 @@ func main() {
 	// RSVP endpoints
 	router.POST("/rsvp/:event_id/:attendee_id", rsvpHandler.RegisterToEvent)
 
+	router.GET("/notifications", notificationHandler.StreamNotifications)
 	// ------------------ HTTP Server & Graceful Shutdown ------------------
 	srv := &http.Server{
 		Addr:    ":8081",
@@ -77,6 +85,15 @@ func main() {
 		log.Println("Server is running on port 8081")
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Fatalf("Server startup failed: %v", err)
+		}
+	}()
+
+	go func() {
+		ticker := time.NewTicker(1 * time.Hour)
+		defer ticker.Stop()
+		for {
+			<-ticker.C
+			notificationService.NotifyTodayEvents()
 		}
 	}()
 

@@ -35,6 +35,11 @@
     <ul id="eventList"></ul>
   </section>
 
+  <section>
+    <h2>Notifications</h2>
+    <ul id="notifications"></ul>
+  </section>
+
   <script>
     const API_BASE = "http://localhost:8081"; // Backend server
 
@@ -70,6 +75,11 @@
         const li = document.createElement("li");
         li.textContent = `${ev.event_date} ${ev.title} - ${ev.description}`;
 
+        //RSVP Button
+        const rsvpButton = document.createElement("button");
+        rsvpButton.textContent = "RSVP";
+        rsvpButton.onclick =  () => rsvpEvent(ev.id);
+        li.appendChild(rsvpButton);
         // Delete button
         const deleteButton = document.createElement("button");
         deleteButton.textContent = "Delete";
@@ -121,6 +131,37 @@
         alert("Error updating event.");
       }
     }
+
+    //RSVP 
+    async function rsvpEvent(eventId) {
+    console.log("RSVPing to event ID:", eventId);
+  const attendeeId = prompt("Enter your attendee ID to RSVP:");
+    console.log("Attendee ID entered:", attendeeId);
+  if (attendeeId) {
+    const res = await fetch(`${API_BASE}/rsvp/${eventId}/${attendeeId}`, {
+      method: "POST"
+    });
+    if (res.ok) {
+      alert("RSVP successful!");
+    } else {
+      alert("Error RSVPing.");
+    }
+  }
+}
+
+
+    // SSE for notifications
+    const evtSource = new EventSource("http://localhost:8081/notifications");
+    evtSource.onmessage = function(event) {
+        const data = JSON.parse(event.data);
+        const notifList = document.getElementById("notifications");
+        if (notifList) {
+            const li = document.createElement("li");
+            li.textContent = `[${new Date(data.timestamp).toLocaleTimeString()}] ${data.message}`;
+            li.className = "notif";
+            notifList.prepend(li);
+        }
+    };
 
     // ---------- Init ----------
     loadEvents();

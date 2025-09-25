@@ -3,8 +3,9 @@ package kk
 import "github.com/segmentio/kafka-go"
 
 type KafkaConsumer struct {
-    reader *kafka.Reader
+	reader *kafka.Reader
 }
+
 func NewKafkaConsumer(broker, groupID, topic string) *KafkaConsumer {
 	reader := kafka.NewReader(kafka.ReaderConfig{
 		Brokers:  []string{broker},
@@ -21,5 +22,5 @@ func (c *KafkaConsumer) Reader() *kafka.Reader {
 }
 
 func (c *KafkaConsumer) Close() error {
-    return c.reader.Close()
+	return c.reader.Close()
 }
