@@ -9,14 +9,10 @@ import (
 )
 
 func ConnectDB() *sqlx.DB {
-
-	// var db *sql.DB
-	// dsn := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable",
-	//     dbUser, dbPassword, dbhost, dbPort, dbName)
 	connStr := fmt.Sprintf("user=%s password=%s dbname=%s sslmode=%s", dbUser, dbPassword, dbName, sslmode)
 	var err error
 	db, err := sqlx.Connect("pgx", connStr)
-	// db, err = sql.Open("pgx", dsn)
+
 	if err != nil {
 		log.Fatalf("Failed to open DB: %v", err)
 	}
