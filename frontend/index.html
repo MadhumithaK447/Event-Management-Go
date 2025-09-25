@@ -23,7 +23,7 @@
     <form id="eventForm">
       <label>Title:<br><input type="text" id="title" required></label><br>
       <label>Description:<br><input type="text" id="description" required></label><br>
-      <label>Date:<br><input type="date" id="date" required></label><br>
+      <label>Date:<br><input type="date" id="event_date" required></label><br>
       <button type="submit">Create</button>
     </form>
   </section>
@@ -36,18 +36,19 @@
   </section>
 
   <script>
-    const API_BASE = "http://localhost:8080"; // Backend server
+    const API_BASE = "http://localhost:8081"; // Backend server
 
     // ---------- Create Event ----------
     document.getElementById("eventForm").addEventListener("submit", async (e) => {
       e.preventDefault();
       const title = document.getElementById("title").value;
       const description = document.getElementById("description").value;
+      const event_date = document.getElementById("event_date").value;
 
       const res = await fetch(`${API_BASE}/events`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title, description })
+        body: JSON.stringify({ title, description, event_date: event_date})
       });
 
       if (res.ok) {
@@ -62,7 +63,6 @@
     // ---------- Load All Events ----------
     async function loadEvents() {
       const res = await fetch(`${API_BASE}/events`);
-      console.log(res);
       const events = await res.json();
       const list = document.getElementById("eventList");
       list.innerHTML = "";
@@ -81,9 +81,9 @@
         updateButton.onclick = () => {
           const newTitle = prompt("Enter new title:", ev.title);
           const newDesc = prompt("Enter new description:", ev.description);
-          const newDate = prompt("Enter new date (YYYY-MM-DD):", ev.date);
-          if (newTitle && newDesc) {
-            updateEvent(ev.id, { title: newTitle, description: newDesc , date: newDate});
+          const newDate = prompt("Enter new date (YYYY-MM-DD):", ev.event_date);
+          if (newTitle && newDesc && newDate) {
+            updateEvent(ev.id, { title: newTitle, description: newDesc , event_date: newDate});
           }
         };
 

@@ -24,7 +24,7 @@ func NewEventRepository(db *sqlx.DB) EventRepository {
 }
 
 func (r *eventRepo) AddEvent(event models.Event) error {
-	query := "INSERT INTO events (title, description) VALUES (:title, :description)"
+	query := "INSERT INTO events (title, description, event_date) VALUES (:title, :description, :event_date)"
 	//_, err := r.db.Exec(query, event.Title, event.Description)
 	_, err := r.db.NamedExec(query, event)
 	if err != nil {
@@ -51,9 +51,12 @@ func (r *eventRepo) GetEventByID(id int) (models.Event, error) {
 }
 
 func (r *eventRepo) UpdateEvent(id int, event models.Event) error {
-	query := `UPDATE events SET title=:title, description=:description where id=:id`
+	query := `UPDATE events SET title=:title, description=:description, event_date=:event_date where id=:id`
 	args := map[string]interface{}{
-		"id": id,
+		"id":          id,
+		"title":       event.Title,
+		"description": event.Description,
+		"event_date":        event.EventDate,
 	}
 	_, err := r.db.NamedExec(query, args)
 	if err != nil {
@@ -63,10 +66,10 @@ func (r *eventRepo) UpdateEvent(id int, event models.Event) error {
 }
 
 func (r *eventRepo) Exists(id int) (bool, error) {
-    var exists bool
-    query := `SELECT EXISTS (SELECT 1 FROM events WHERE id=$1)`
-    err := r.db.Get(&exists, query, id)
-    return exists, err
+	var exists bool
+	query := `SELECT EXISTS (SELECT 1 FROM events WHERE id=$1)`
+	err := r.db.Get(&exists, query, id)
+	return exists, err
 }
 
 func (r *eventRepo) DeleteEvent(id int) error {

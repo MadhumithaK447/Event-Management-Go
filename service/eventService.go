@@ -36,10 +36,10 @@ func (s *eventService) GetAllEvents() ([]models.Event, error) {
 func (s *eventService) GetEventByID(id int) (models.Event, error) {
 	exists, err := s.repo.Exists(id)
 	if err != nil {
-		return models.Event{},err
+		return models.Event{}, err
 	}
 	if !exists {
-		return models.Event{},fmt.Errorf("event with id %d does not exist", id)
+		return models.Event{}, fmt.Errorf("event with id %d does not exist", id)
 	}
 	return s.repo.GetEventByID(id)
 }
